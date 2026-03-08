@@ -282,14 +282,19 @@
 
     // Xử lý nút bật/tắt nhạc
     musicToggleBtn.addEventListener('click', () => {
-        if (musicHasStarted) {
+        // Nếu nhạc chưa bắt đầu, cú click đầu tiên vào nút này sẽ bắt đầu phát nhạc.
+        if (!musicHasStarted) {
+            // Hàm playMusicFadeIn có cơ chế bảo vệ để chỉ chạy một lần.
+            // Document event listener cũng có thể gọi hàm này, nhưng nó sẽ không chạy 2 lần.
+            playMusicFadeIn();
+        } else {
+            // Nếu nhạc đã được khởi tạo, nút này sẽ hoạt động như một công tắc bật/tắt.
             if (audio.paused) {
                 audio.play();
             } else {
                 audio.pause();
             }
         }
-        // Nếu nhạc chưa bắt đầu, cú click này sẽ kích hoạt playMusicFadeIn() qua event listener ở trên
     });
 
     // Cập nhật UI khi trạng thái nhạc thay đổi
