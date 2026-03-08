@@ -81,13 +81,13 @@
   </div>
 
   <audio id="bgMusic" loop autoplay>
-    <source src="./style/music.mp3" type="audio/mpeg">
+    <source src="../music.mp3" type="audio/mpeg">
   </audio>
 
   <!-- Nút Bật/Tắt nhạc -->
   <div id="music-toggle-btn" class="music-toggle">
       <i class="fas fa-volume-high" id="music-icon"></i>
-      <span class="music-name" id="music-name">Yêu Nhiều Ghen Nhiều</span>
+      <span class="music-name" id="music-name">I LOVE YOU</span>
   </div>
 
   <div class="stats">
@@ -105,7 +105,7 @@
     const musicToggleBtn = document.getElementById('music-toggle-btn');
     const musicNameEl = document.getElementById('music-name');
     const musicIconEl = document.getElementById('music-icon');
-    const songTitle = "Yêu Nhiều Ghen Nhiều";
+    const songTitle = "I LOVE YOU";
 
     function updateMusicUI() {
         musicNameEl.textContent = songTitle;
@@ -129,13 +129,21 @@
     }
 
     musicToggleBtn.addEventListener('click', () => {
-        if (audio.paused || audio.volume === 0) {
-            audio.volume = 1.0; audio.play();
+        if (!musicStarted) {
+            playMusicFadeIn();
         } else {
-            audio.pause();
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
         }
-        updateMusicUI();
     });
+
+    // Cập nhật UI khi trạng thái nhạc thay đổi để đảm bảo đồng bộ
+    audio.addEventListener('play', updateMusicUI);
+    audio.addEventListener('pause', updateMusicUI);
+    audio.addEventListener('volumechange', updateMusicUI);
 
     let musicStarted = false;
     audio.volume = 0; // Bắt đầu với âm lượng 0 để chuẩn bị fade-in

@@ -497,43 +497,61 @@
 
         let currentSongIndex = Math.floor(Math.random() * playlist.length);
         audio.src = playlist[currentSongIndex];
-        audio.load(); // Bắt buộc tải lại nguồn nhạc để sẵn sàng phát
-        audio.volume = 1.0;
-        audio.muted = true; // Bắt đầu với trạng thái tắt tiếng
+        audio.load(); 
+        audio.volume = 0; // Bắt đầu từ 0 để fade-in
 
         const musicNameEl = document.getElementById('music-name');
         const musicIconEl = document.getElementById('music-icon');
 
         function updateMusicUI() {
             musicNameEl.textContent = songTitles[currentSongIndex];
-
-            // Xóa trạng thái marquee cũ trước khi kiểm tra
             musicNameEl.classList.remove('marquee');
             musicNameEl.style.removeProperty('--marquee-end-x');
             musicNameEl.style.removeProperty('--marquee-duration');
-
-            // Dùng timeout để trình duyệt kịp tính toán chiều rộng của chữ mới
             setTimeout(() => {
                 if (musicNameEl.scrollWidth > musicNameEl.clientWidth) {
                     const overflowDistance = musicNameEl.clientWidth - musicNameEl.scrollWidth;
-                    const duration = (musicNameEl.scrollWidth / 40); // Tốc độ: 40px/giây
+                    const duration = (musicNameEl.scrollWidth / 40); 
                     musicNameEl.style.setProperty('--marquee-end-x', `${overflowDistance}px`);
                     musicNameEl.style.setProperty('--marquee-duration', `${duration}s`);
                     musicNameEl.classList.add('marquee');
                 }
-            }, 10); // Chỉ cần một khoảng trễ nhỏ
+            }, 10);
 
-            if (!audio.paused && !audio.muted) {
+            if (!audio.paused && !audio.muted && audio.volume > 0) {
                 musicIconEl.className = 'fas fa-volume-high';
             } else {
                 musicIconEl.className = 'fas fa-volume-mute';
             }
         }
 
-        // Thử tự động phát ở chế độ tắt tiếng (khả năng thành công cao hơn)
-        audio.play().catch(e => {
-            console.log("Tự động phát bị chặn, nhạc sẽ bắt đầu khi người dùng tương tác.");
-        });
+        let musicStarted = false;
+        function playMusicFadeIn() {
+            if (!musicStarted) {
+                audio.play().then(() => {
+                    musicStarted = true;
+                    audio.muted = false;
+                    // Hiệu ứng fade-in
+                    let vol = 0;
+                    const fadeIn = setInterval(() => {
+                        if (vol < 1.0) { vol = Math.min(1.0, vol + 0.05); audio.volume = vol; }
+                        else { clearInterval(fadeIn); }
+                    }, 50);
+                    updateMusicUI();
+                }).catch(e => {
+                    console.log("Chờ tương tác người dùng để phát nhạc.");
+                    updateMusicUI();
+                });
+            }
+        }
+
+        // Thử phát ngay (thường sẽ bị chặn nếu chưa tương tác)
+        playMusicFadeIn();
+
+        // Lắng nghe mọi tương tác để phát nhạc
+        ['click', 'mousemove', 'touchstart', 'keydown'].forEach(evt => 
+            document.addEventListener(evt, playMusicFadeIn, { once: true })
+        );
 
         // Tự động chuyển sang bài hát ngẫu nhiên khác khi hết bài
         audio.addEventListener('ended', () => {
@@ -559,14 +577,18 @@
 
         // --- XỬ LÝ NÚT BẬT/TẮT NHẠC ---
         musicToggleBtn.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.muted = false; // Đảm bảo nhạc không bị tắt tiếng khi bấm play
-                audio.play();
-                updateMusicUI();
+            if (!musicStarted) {
+                playMusicFadeIn();
             } else {
-                audio.pause();
-                updateMusicUI();
+                if (audio.paused || audio.muted || audio.volume === 0) {
+                    audio.muted = false;
+                    audio.volume = 1.0;
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
             }
+            updateMusicUI();
         });
         audio.addEventListener('play', () => { updateMusicUI(); });
         audio.addEventListener('pause', () => { updateMusicUI(); });
@@ -597,23 +619,8 @@
 
         // --- SỰ KIỆN MỞ MÀN HÌNH ---
         document.getElementById('openGift').addEventListener('click', () => {
-            // Bắt đầu phát nhạc có tiếng khi người dùng tương tác
-            if (audio.paused || audio.muted) {
-                audio.muted = false;
-                audio.volume = 0; // Bắt đầu từ 0 để fade-in
-                audio.play().catch(e => console.error("Lỗi phát nhạc:", e));
-
-                // Hiệu ứng tăng âm lượng (fade-in)
-                let currentVolume = 0;
-                const fadeIn = setInterval(() => {
-                    if (currentVolume < 1.0) {
-                        currentVolume += 0.05;
-                        audio.volume = Math.min(currentVolume, 1.0);
-                    } else {
-                        clearInterval(fadeIn);
-                    }
-                }, 50);
-            }
+            // Đảm bảo nhạc phát nếu chưa phát
+            playMusicFadeIn();
 
             overlay.style.opacity = '0';
             setTimeout(() => {
