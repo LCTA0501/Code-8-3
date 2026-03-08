@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Chúc mừng 8/3!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- CÁC THIẾT LẬP CHUNG --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Dancing Script', cursive, sans-serif;
+            background: linear-gradient(145deg, #ffe4f2 0%, #fad0e6 50%, #f9c8dc 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        /* --- BACKGROUND MƯA TIM RƠI LIÊN TỤC --- */
+        .bg-hearts {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+        .bg-heart {
+            position: absolute; color: rgba(255, 80, 130, 0.45);
+            user-select: none;
+        }
+        @keyframes bgHeartFall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- MÀN HÌNH CHỜ (OVERLAY) & HIỆU ỨNG GÕ CHỮ --- */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 215, 235, 0.95); backdrop-filter: blur(12px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.8s ease; padding: 20px;
+        }
+        
+        #typewriter-container {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #d6336c;
+            text-align: center;
+            max-width: 90%;
+            min-height: 50px; 
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .cursor {
+            display: inline-block; width: 3px; height: 1.5rem;
+            background-color: #d6336c; vertical-align: middle;
+            animation: blink 0.8s infinite; margin-left: 5px;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .gift-box {
+            background: #ffa5c3; border-radius: 60px 60px 30px 30px; padding: 30px 50px;
+            box-shadow: 0 20px 40px #ec7a9e; border: 4px solid white; cursor: pointer;
+            animation: pulse 1.8s infinite; max-width: 90%; text-align: center;
+            display: none; opacity: 0; transform: scale(0.8);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .gift-box.show {
+            display: block; opacity: 1; transform: scale(1);
+        }
+        .gift-box h2 { font-family: 'Great Vibes', cursive; font-size: 3rem; color: white; text-shadow: 2px 2px 0 #b34b6b; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* --- NỘI DUNG CHÍNH --- */
+        #main-content {
+            width: 100%; max-width: 1100px; text-align: center;
+            z-index: 5; opacity: 0; transition: opacity 0.5s;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        #main-content.visible { opacity: 1; }
+        
+        h1 {
+            font-family: 'Great Vibes', cursive; font-size: 4rem; color: #aa2e62;
+            text-shadow: 0 0 10px #ffb6c1; margin-bottom: 20px;
+        }
+
+        /* --- VIDEO GIỮA TRANG --- */
+        .video-wrapper { 
+            width: min(80vw, 45vh); height: min(80vw, 45vh); margin: 2vh auto; position: relative; 
+            filter: drop-shadow(0 0 10px rgba(255, 77, 109, 0.5)); transition: transform 0.3s, opacity 0.4s ease; 
+            animation: floatGlow 2.5s ease-in-out infinite alternate; display: flex; align-items: center; justify-content: center; border-radius: 50%; will-change: transform, opacity;
+        }
+        .video-wrapper:hover { transform: scale(1.05); }
+        @keyframes floatGlow { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
+
+        .video-wrapper::before { 
+            content: ''; position: absolute; top: -1.5vh; left: -1.5vh; right: -1.5vh; bottom: -1.5vh; 
+            background: linear-gradient(45deg, #ff0055, #ffb6c1, #ff0055, #ffb6c1); background-size: 300% 300%; 
+            z-index: 1; border-radius: 50%; animation: glowingBorder 3s ease infinite; 
+        }
+        @keyframes glowingBorder { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .video-wrapper video, .video-wrapper img { width: 100%; height: 100%; object-fit: cover; z-index: 2; border-radius: 50%; border: 4px solid #fff; background-color: #ff85a3; }
+
+        .surprise-btn {
+            background: #ff7b9c; border: none; border-radius: 100px; padding: 15px 40px;
+            font-size: 2rem; font-family: 'Great Vibes', cursive; color: white;
+            box-shadow: 0 8px 0 #b33b5c; cursor: pointer; margin-top: 30px; transition: transform 0.1s;
+        }
+        .surprise-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #b33b5c; }
+
+        /* --- PHẦN PHONG BÌ & LÁ THƯ --- */
+        .letter-modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); 
+            align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: 0.5s; padding: 15px; 
+        }
+        .envelope-wrapper { 
+            position: relative; width: min(92vw, 650px); height: min(50vw, 35vh); perspective: 1500px; transition: 0.7s; 
+        }
+        .envelope-back { 
+            position: absolute; width: 100%; height: 100%; background: #f06c9b; border-radius: 15px; z-index: 1; box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+        }
+        
+        /* BẢN SỬA LỖI JUMP LAYOUT */
+        .letter-card {
+            position: absolute; top: 50%; left: 50%; width: 92%; height: 88%; background-color: #fef7e9;
+            background-image: repeating-linear-gradient(transparent, transparent 35px, rgba(220, 160, 180, 0.15) 35px, rgba(220, 160, 180, 0.15) 36px);
+            border: 5px double #e08fab; border-radius: 15px; padding: clamp(15px, 3vh, 40px);
+            transform: translate(-50%, -50%) translateZ(0); z-index: 2; 
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.6s ease, height 0.6s ease, box-shadow 0.8s ease;
+            box-shadow: inset 0 0 20px rgba(255,240,245,0.8), 0 5px 15px rgba(0,0,0,0.1); overflow: hidden; 
+        }
+        
+        .envelope-front { 
+            position: absolute; width: 100%; height: 100%; background: #ff85a3; clip-path: polygon(0 100%, 0 0, 50% 60%, 100% 0, 100% 100%); z-index: 4; border-radius: 15px; border-top: 2px solid #ff9eb5; transition: 0.5s; 
+        }
+        .envelope-flap { 
+            position: absolute; width: 100%; height: 60%; background: #ff9eb5; top: 0; left: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 5; transform-origin: top; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 15px 15px 0 0; border-bottom: 3px solid rgba(0,0,0,0.1); 
+        }
+
+        /* Mở nắp và rút thư lên */
+        .envelope-wrapper.open .envelope-flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-wrapper.open .letter-card { transform: translate(-50%, -95%) translateZ(10px); z-index: 2; transition-delay: 0.3s; }
+        
+        /* CỐ ĐỊNH KHI MỞ HOÀN TOÀN - CHỐNG LỆCH TRÊN ĐIỆN THOẠI */
+        .envelope-wrapper.fully-opened .letter-card {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) translateZ(0) !important;
+            width: min(92vw, 650px); height: auto; max-height: 85vh; z-index: 1000; 
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8), 0 0 50px #ff85b0, 0 0 100px rgba(255, 255, 255, 0.3); transition-delay: 0s; 
+            overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+        }
+
+        .letter-card::-webkit-scrollbar { width: 6px; }
+        .letter-card::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+        .letter-card::-webkit-scrollbar-thumb { background: #ff9eb5; border-radius: 10px; }
+
+        .envelope-wrapper.fully-opened .envelope-front, 
+        .envelope-wrapper.fully-opened .envelope-back, 
+        .envelope-wrapper.fully-opened .envelope-flap { 
+            opacity: 0; pointer-events: none; transform: translateY(30px); transition: 0.6s ease-out; 
+        }
+
+        .letter-content { 
+            display: flex; flex-direction: row; align-items: center; gap: clamp(15px, 3vw, 30px); height: auto; opacity: 0; transition: 0.5s 0.6s; padding-bottom: 20px;
+        }
+        .envelope-wrapper.fully-opened .letter-content { opacity: 1; transition-delay: 0.3s; }
+
+        .letter-image { flex-shrink: 0; }
+        .letter-image img { 
+            width: clamp(100px, 25vw, 180px); height: clamp(130px, 35vh, 260px); object-fit: cover; border-radius: 10px; border: 4px solid #ff7b9c; padding: 4px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transform: rotate(-3deg); transition: 0.3s; 
+        }
+        .letter-image img:hover { transform: rotate(0deg) scale(1.05); }
+
+        .letter-text { flex-grow: 1; text-align: left; }
+        .letter-text h2 { 
+            font-family: 'Great Vibes', cursive; font-size: clamp(2rem, 5vh, 3.5rem); color: #d6336c; margin-bottom: 1vh; display: flex; align-items: center; gap: 8px; 
+        }
+        .letter-text p {
+            font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 2.8vh, 1.8rem); line-height: 1.5; color: #8a2c4a; font-style: italic;
+        }
+        .signature {
+            font-family: 'Pacifico', cursive; font-size: clamp(1.8rem, 4vh, 2.8rem); margin-top: 1.5vh; text-align: right; color: #d6336c;
+        }
+
+        /* Style cho nút chuyển sang quà tiếp theo */
+        .next-gift-btn {
+            display: inline-block; margin-top: 15px; padding: 10px 25px;
+            background: linear-gradient(45deg, #ff4d6d, #ff85a3); color: white; 
+            border-radius: 50px; text-decoration: none; 
+            font-family: 'Dancing Script', cursive; font-size: 1.5rem; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4); transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+        .next-gift-btn:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(255, 77, 109, 0.6); }
+
+        /* --- NÚT BẬT/TẮT NHẠC --- */
+        .music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 50px;
+            height: 60px;
+            background: rgba(255, 123, 156, 0.9);
+            color: white;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10001; /* Tăng z-index để nổi lên trên màn hình chờ */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: 2px solid white;
+            padding: 0 30px;
+            gap: 8px;
+        }
+        .music-toggle:hover { transform: scale(1.1); background: #ff7b9c; }
+
+        .music-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            white-space: nowrap;
+            max-width: 350px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* Thêm để tính toán chiều rộng và căn chỉnh tốt hơn */
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Hiệu ứng chữ chạy cho tên bài hát dài */
+        .music-name.marquee {
+            text-overflow: clip; /* Bỏ dấu "..." khi chạy chữ */
+            animation: marquee-scroll var(--marquee-duration, 8s) linear infinite alternate;
+        }
+
+        @keyframes marquee-scroll {
+            100% { transform: translateX(var(--marquee-end-x, -50px)); }
+        }
+
+        /* --- HIỆU ỨNG ĐẾM NGƯỢC 3-2-1 --- */
+        @keyframes countdownPulse {
+            0% { transform: scale(0.3) rotate(-20deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        #typewriter-container.countdown-mode {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: auto;
+            margin-bottom: 0;
+        }
+
+        .countdown-number-style {
+            font-family: 'Great Vibes', cursive !important;
+            font-weight: bold;
+            font-size: clamp(10rem, 38vw, 18rem) !important;
+            color: white;
+            background: #ff85a3;
+            width: clamp(15rem, 50vw, 25rem);
+            height: clamp(15rem, 50vw, 25rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 50px rgba(255, 133, 163, 0.8), inset 0 0 20px rgba(255,255,255,0.6);
+            animation: countdownPulse 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            line-height: 1 !important;
+            padding-top: 1.5rem; /* Căn chỉnh cho font Great Vibes */
+        }
+
+        /* --- HIỆU ỨNG CHUYỂN CẢNH (TRANSITION OVERLAY) --- */
+        .transition-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            /* Đổi màu nền sang tông tối của main-2 để hòa quyện */
+            background: radial-gradient(ellipse 90% 70% at 50% 45%, #380622 0%, #18000e 100%);
+            z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 1.2s ease;
+        }
+        .transition-overlay.active { opacity: 1; pointer-events: auto; }
+        .transition-heart-icon {
+            font-size: 5rem; color: #e8446a; transform: scale(0); 
+            text-shadow: 0 0 30px rgba(232,68,106, 0.8); /* Thêm glow neon */
+            transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .transition-overlay.active .transition-heart-icon { transform: scale(4); }
+
+        .letter-close { 
+            position: absolute; top: 10px; right: 15px; font-size: clamp(2rem, 5vh, 2.8rem); color: #d6336c; cursor: pointer; z-index: 101; transition: 0.3s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; opacity: 0; pointer-events: none; 
+        }
+        .envelope-wrapper.fully-opened .letter-close { opacity: 1; pointer-events: auto; transition-delay: 0.8s; }
+        .letter-close:hover { background: rgba(255,182,193,0.5); transform: rotate(90deg); }
+
+        .heavy-rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9997; }
+        .heavy-heart { position: absolute; }
+
+        /* --- RESPONSIVE CHO ĐIỆN THOẠI --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; }
+            #typewriter-container { font-size: 1.4rem; }
+
+            .letter-content { flex-direction: column; text-align: center; gap: 1.5vh; }
+            .letter-text { text-align: center; }
+            .letter-text h2 { justify-content: center; }
+            
+            /* Dùng :not(.fully-opened) để bảo vệ transform khi đã hiển thị ở giữa màn hình */
+            .envelope-wrapper.open:not(.fully-opened) .letter-card { 
+                transform: translate(-50%, -105%) translateZ(10px); 
+            }
+            
+            .letter-image img { width: clamp(120px, 40vw, 160px); height: auto; aspect-ratio: 3/4; max-height: 25vh; transform: rotate(0); }
+            .signature { text-align: center; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-hearts" id="bgHearts"></div>
+
+    <div id="overlay">
+        <div id="typewriter-container">
+            <span id="text-output"></span><span class="cursor"></span>
+        </div>
+        
+        <div class="gift-box" id="openGift">
+            <h2>🎁 Có Điều Bất Ngờ 🎁</h2>
+            <p style="color: white; margin-top: 10px; font-size: 1.2rem;">Chạm vào đây nhé!</p>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <h1>Happy Women's Day 8/3</h1>
+        
+        <div class="video-wrapper" id="mainVideoWrapper">
+            <!-- <video id="mainVideo" src="video.mp4" autoplay loop muted playsinline></video> -->
+            <!-- Ảnh gốc đã được thay: <img id="mainImage" src="https://i.pinimg.com/564x/1b/81/39/1b8139314c19143c1653ca33b94b1448.jpg" alt="Ảnh đại diện"> -->
+            <!-- <img id="mainImage" src="https://hoanghamobile.com/tin-tuc/wp-content/webp-express/webp-images/uploads/2023/09/hinh-nen-tinh-yeu-4.jpg.webp" alt="Ảnh đại diện"> -->
+            <img id="mainImage" src="Nguyen_thi_anh_tuyet.jpg" alt="Ảnh đại diện">
+        </div>
+
+        <button class="surprise-btn" id="surpriseBtn">💖 Nhấn vào đây đi 💖</button>
+    </div>
+
+    <div class="letter-modal" id="letterModal">
+        <div class="envelope-wrapper" id="envelopeWrapper">
+            <div class="envelope-flap"></div>
+            <div class="envelope-back"></div>
+
+            <div class="letter-card">
+                <span class="letter-close" id="closeModal">&times;</span>
+                <div class="letter-content">
+                    <div class="letter-image">
+                        <img src="https://hoanghamobile.com/tin-tuc/wp-content/webp-express/webp-images/uploads/2023/09/hinh-nen-tinh-yeu-4.jpg.webp" alt="Kỷ niệm">
+                    </div>
+                    <div class="letter-text">
+                        <h2><i class="fas fa-heart" style="font-size: 0.8em; color: #ff4d6d;"></i> Gửi người tôi thương tên Tuyết!</h2>
+                        <p>
+                        Nhân ngày Quốc tế Phụ nữ 8/3,<br> 
+                         Chúc em một ngày lễ trọn vẹn, đầy ý nghĩa với những kỉ niệm đẹp nhất. Chúc em luôn vui vẻ, gặp nhiều may mắn, chúc em mỗi ngày đều cười tươi.<br> 
+
+                        Chúc em ngày càng xinh đẹp, giỏi giang, chúc em cuộc sống đọng đầy bao nhiêu hạnh phúc đều là của em. <br> 
+
+                        Và đặc biệt là không còn buồn phiền, tiêu cực, luôn an nhiên. Mỗi ngày trôi qua đều là ngày hạnh phúc nhất..."<br> 
+                        Happy Women's Day!
+                        </p>
+                        <div class="signature">❤️Lê Công Tuấn Anh❤️</div>
+                        
+                        <div style="text-align: center; width: 100%; margin-top: 10px;">
+                            <a href="../main-2/index.html" class="next-gift-btn" id="btnNext">Khám phá tiếp</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="envelope-front"></div>
+        </div>
+    </div>
+
+    <!-- Nút Bật/Tắt nhạc -->
+    <div id="music-toggle-btn" class="music-toggle">
+        <i class="fas fa-volume-mute" id="music-icon"></i>
+        <span class="music-name" id="music-name">Bật nhạc</span>
+    </div>
+
+    <div class="heavy-rain-container" id="heavyRainContainer"></div>
+    <audio id="bgMusic"></audio> 
+
+    <!-- Lớp phủ chuyển cảnh -->
+    <div class="transition-overlay" id="transitionOverlay">
+        <div class="transition-heart-icon">❤️</div>
+    </div>
+
+    <script>
+    
+       // --- NỘI DUNG HIỆU ỨNG GÕ CHỮ ---
+       const textLines = [
+            "Chào người thương của tôi!",
+            "Hôm nay là một ngày rất đặc biệt...",
+            "Có một điều bất ngờ nho nhỏ dành cho em.",
+            "Mong đây là món quà nhỏ có thể mang tới bất ngờ cho em",
+            "Món quà từ trong lòng dành tặng em nhân dịp 8/3",
+            "Em đã sẵn sàng chưa ?"
+        ];
+        
+        let lineIdx = 0;
+        let charIdx = 0;
+        const textOutput = document.getElementById('text-output');
+        const openGiftBtn = document.getElementById('openGift');
+        const typewriterContainer = document.getElementById('typewriter-container');
+
+        // Các biến của video
+        const mainVideoWrapper = document.getElementById('mainVideoWrapper');
+        const mainVideo = document.getElementById('mainVideo');
+
+        function typeWriter() {
+            if (lineIdx < textLines.length) {
+                if (charIdx < textLines[lineIdx].length) {
+                   
+                    textOutput.innerHTML += textLines[lineIdx].charAt(charIdx);
+                    charIdx++;
+                    setTimeout(typeWriter, 70);
+                } else {
+                 
+                    lineIdx++;
+                    charIdx = 0;
+                    
+                    if (lineIdx < textLines.length) {
+                        
+                        setTimeout(() => {
+                            textOutput.innerHTML = ""; 
+                            setTimeout(typeWriter, 400); 
+                        }, 1500);
+                    } else {
+                    
+                        // Hiệu ứng đếm ngược 3-2-1 trước khi hiện quà
+                        setTimeout(() => {
+                            typewriterContainer.classList.add('countdown-mode');
+                            document.querySelector('.cursor').style.display = 'none';
+                            textOutput.textContent = ''; // Xóa văn bản cũ
+                            
+                            let count = 3;
+
+                            function doCountdown() {
+                                if (count > 0) {
+                                    textOutput.className = ''; // Xóa class cũ để reset animation
+                                    textOutput.textContent = count;
+                                    // Trick để buộc trình duyệt reflow, khởi động lại animation
+                                    void textOutput.offsetWidth; 
+                                    textOutput.className = 'countdown-number-style';
+                                    
+                                    count--;
+                                    setTimeout(doCountdown, 1000);
+                                } else {
+                                    // Kết thúc đếm ngược
+                                    typewriterContainer.style.display = 'none'; 
+                                    openGiftBtn.classList.add('show');
+                                }
+                            }
+                            
+                            doCountdown();
+                        }, 1000);
+                    }
+                }
+            }
+        }
+
+        window.onload = () => {
+            setTimeout(typeWriter, 1000);
+        };
+
+        const overlay = document.getElementById('overlay');
+        const mainContent = document.getElementById('main-content');
+        const audio = document.getElementById('bgMusic');
+        
+        // --- XỬ LÝ PHÁT NHẠC TỰ ĐỘNG KHI CÓ TƯƠNG TÁC ĐẦU TIÊN ---
+        // Do trình duyệt chặn tự động phát nhạc, chúng ta sẽ phát ngay khi người dùng di chuột, chạm, hoặc click lần đầu.
+        let musicHasStarted = false;
+        function playMusicOnFirstInteraction() {
+            // Nếu nhạc chưa bắt đầu hoặc đang bị tắt tiếng, hãy bật tiếng và phát
+            if (!musicHasStarted || audio.muted) {
+                musicHasStarted = true;
+                audio.muted = false; // Bật lại tiếng
+                audio.play().catch(e => console.log("Lỗi phát nhạc, cần tương tác của người dùng.", e));
+            }
+        }
+        ['mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => document.addEventListener(evt, playMusicOnFirstInteraction, { once: true }));
+
+        // --- DANH SÁCH NHẠC (5 BÀI PHÁT NGẪU NHIÊN) ---
+        const playlist = [
+            "1.mp3",
+            "2.mp3", 
+            "3.mp3", 
+            "4.mp3",
+            "5.mp3"  
+        ];
+
+        const songTitles = [
+            "Xem như tôi từng cưới được cô ấy",
+            "Xem như tôi từng cưới được cô ấy",
+            "Xem như tôi từng cưới được cô ấy",
+            "Xem như tôi từng cưới được cô ấy",
+            "Xem như tôi từng cưới được cô ấy"
+        ];
+
+        let currentSongIndex = Math.floor(Math.random() * playlist.length);
+        audio.src = playlist[currentSongIndex];
+        audio.load(); // Bắt buộc tải lại nguồn nhạc để sẵn sàng phát
+        audio.volume = 1.0;
+        audio.muted = true; // Bắt đầu với trạng thái tắt tiếng
+
+        const musicNameEl = document.getElementById('music-name');
+        const musicIconEl = document.getElementById('music-icon');
+
+        function updateMusicUI() {
+            musicNameEl.textContent = songTitles[currentSongIndex];
+
+            // Xóa trạng thái marquee cũ trước khi kiểm tra
+            musicNameEl.classList.remove('marquee');
+            musicNameEl.style.removeProperty('--marquee-end-x');
+            musicNameEl.style.removeProperty('--marquee-duration');
+
+            // Dùng timeout để trình duyệt kịp tính toán chiều rộng của chữ mới
+            setTimeout(() => {
+                if (musicNameEl.scrollWidth > musicNameEl.clientWidth) {
+                    const overflowDistance = musicNameEl.clientWidth - musicNameEl.scrollWidth;
+                    const duration = (musicNameEl.scrollWidth / 40); // Tốc độ: 40px/giây
+                    musicNameEl.style.setProperty('--marquee-end-x', `${overflowDistance}px`);
+                    musicNameEl.style.setProperty('--marquee-duration', `${duration}s`);
+                    musicNameEl.classList.add('marquee');
+                }
+            }, 10); // Chỉ cần một khoảng trễ nhỏ
+
+            if (!audio.paused && !audio.muted) {
+                musicIconEl.className = 'fas fa-volume-high';
+            } else {
+                musicIconEl.className = 'fas fa-volume-mute';
+            }
+        }
+
+        // Thử tự động phát ở chế độ tắt tiếng (khả năng thành công cao hơn)
+        audio.play().catch(e => {
+            console.log("Tự động phát bị chặn, nhạc sẽ bắt đầu khi người dùng tương tác.");
+        });
+
+        // Tự động chuyển sang bài hát ngẫu nhiên khác khi hết bài
+        audio.addEventListener('ended', () => {
+            let nextSongIndex;
+            // Đảm bảo bài tiếp theo không trùng bài hiện tại (nếu có nhiều hơn 1 bài)
+            do {
+                nextSongIndex = Math.floor(Math.random() * playlist.length);
+            } while (playlist.length > 1 && nextSongIndex === currentSongIndex);
+            
+            currentSongIndex = nextSongIndex;
+            audio.src = playlist[currentSongIndex];
+            audio.play().catch(e => console.log("Lỗi tự động chuyển bài:", e));
+            updateMusicUI();
+        });
+
+        const surpriseBtn = document.getElementById('surpriseBtn');
+        const letterModal = document.getElementById('letterModal');
+        const envelopeWrapper = document.getElementById('envelopeWrapper');
+        const closeModal = document.getElementById('closeModal');
+        const rainContainer = document.getElementById('heavyRainContainer');
+        const bgHearts = document.getElementById('bgHearts');
+        const musicToggleBtn = document.getElementById('music-toggle-btn');
+
+        // --- XỬ LÝ NÚT BẬT/TẮT NHẠC ---
+        musicToggleBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.muted = false; // Đảm bảo nhạc không bị tắt tiếng khi bấm play
+                audio.play();
+                updateMusicUI();
+            } else {
+                audio.pause();
+                updateMusicUI();
+            }
+        });
+        audio.addEventListener('play', () => { updateMusicUI(); });
+        audio.addEventListener('pause', () => { updateMusicUI(); });
+        audio.addEventListener('volumechange', () => { updateMusicUI(); });
+
+        // --- TÍNH NĂNG MƯA TIM RƠI LIÊN TỤC (BACKGROUND) ---
+        function createContinuousHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'bg-heart';
+                heart.innerHTML = '<i class="fas fa-heart"></i>';
+                
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.color = `rgba(255, 80, 130, ${Math.random() * 0.4 + 0.3})`;
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                
+                const fallDuration = Math.random() * 5 + 7;
+                heart.style.animation = `bgHeartFall ${fallDuration}s linear forwards`;
+                
+                bgHearts.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, fallDuration * 1000);
+            }, 300); 
+        }
+        createContinuousHearts();
+
+        // --- SỰ KIỆN MỞ MÀN HÌNH ---
+        document.getElementById('openGift').addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                mainContent.classList.add('visible');
+            }, 800);
+            // Nhạc sẽ được phát bởi sự kiện 'playMusicOnFirstInteraction' 
+            // đã được kích hoạt bởi chính cú click này, không cần gọi lại.
+        });
+
+        // --- HIỆU ỨNG NỔ HOA VÀ TIM KHI MỞ THƯ ---
+        function createHeavyHearts(num) {
+            const colors = ['#ff4d6d', '#ff85a3', '#ffb3c6', '#d6336c', '#fff'];
+            for (let i = 0; i < num; i++) {
+                const el = document.createElement('div'); el.className = 'heavy-heart';
+                
+                if (Math.random() > 0.4) { 
+                    el.innerText = ['🌸', '🌺', '🌷', '✨', '💖'][Math.floor(Math.random() * 5)]; 
+                } else { 
+                    el.innerHTML = '<i class="fas fa-heart"></i>'; 
+                    el.style.color = colors[Math.floor(Math.random() * colors.length)]; 
+                }
+                
+                el.style.left = '50vw'; el.style.top = '50vh';
+                
+                const angle = Math.random() * Math.PI * 2; 
+                const velocity = 30 + Math.random() * 50; 
+                const tx = Math.cos(angle) * velocity; 
+                const ty = Math.sin(angle) * velocity;
+                const rotation = Math.random() * 360; 
+
+                el.style.transform = `translate(-50%, -50%) scale(0)`; 
+                el.style.fontSize = Math.random() * 20 + 15 + 'px'; 
+                
+                el.animate([ 
+                    { transform: 'translate(-50%, -50%) scale(0) rotate(0deg)', opacity: 1 }, 
+                    { transform: `translate(calc(-50% + ${tx}vw), calc(-50% + ${ty}vh)) scale(${Math.random() + 0.5}) rotate(${rotation}deg)`, opacity: 0 } 
+                ], { 
+                    duration: Math.random() * 2000 + 1500, 
+                    easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)', 
+                    fill: 'forwards' 
+                });
+                
+                rainContainer.appendChild(el); 
+                setTimeout(() => el.remove(), 3500);
+            }
+        }
+
+        // --- SỰ KIỆN MỞ VÀ ĐÓNG THƯ ---
+        let isOpening = false;
+        surpriseBtn.addEventListener('click', () => {
+            if (isOpening) return; isOpening = true;
+            
+            // Ẩn và dừng video khi mở thư
+            mainVideoWrapper.style.opacity = '0';
+            setTimeout(() => {
+                mainVideoWrapper.style.display = 'none';
+                // mainVideo.pause(); // Tạm ẩn video
+            }, 300);
+
+            letterModal.style.display = 'flex';
+            
+            setTimeout(() => {
+                letterModal.style.opacity = '1';
+                envelopeWrapper.classList.add('open'); 
+                
+                setTimeout(() => {
+                    createHeavyHearts(120); 
+                }, 800); 
+                
+                setTimeout(() => {
+                    envelopeWrapper.classList.add('fully-opened');
+                }, 1300); 
+            }, 50);
+        });
+
+        closeModal.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            letterModal.style.opacity = '0'; 
+            
+            // Hiện và tiếp tục phát video khi đóng thư
+            mainVideoWrapper.style.display = 'flex';
+            setTimeout(() => {
+                mainVideoWrapper.style.opacity = '1';
+                // mainVideo.play(); // Tạm ẩn video
+            }, 50);
+
+            setTimeout(() => {
+                letterModal.style.display = 'none'; 
+                envelopeWrapper.classList.remove('open', 'fully-opened');
+                const parts = document.querySelectorAll('.envelope-front, .envelope-back, .envelope-flap');
+                parts.forEach(el => { el.style.opacity = ""; el.style.transform = ""; });
+                isOpening = false;
+            }, 500);
+        });
+
+        // --- XỬ LÝ CHUYỂN CẢNH SANG MAIN-2 ---
+        document.getElementById('btnNext').addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn chặn chuyển trang ngay lập tức
+            const targetUrl = this.getAttribute('href');
+            const overlay = document.getElementById('transitionOverlay');
+            
+            // --- HIỆU ỨNG FADE-OUT NHẠC (NHỎ DẦN) ---
+            let vol = 1.0;
+            const fadeOutAudio = setInterval(() => {
+                if (vol > 0.05) {
+                    vol -= 0.05; // Giảm từ từ mịn hơn
+                    audio.volume = vol;
+                } else {
+                    clearInterval(fadeOutAudio);
+                    audio.pause();
+                }
+            }, 50); // Tốc độ giảm nhanh hơn nhưng mượt hơn (50ms)
+
+            overlay.classList.add('active'); // Kích hoạt hiệu ứng màn hình hồng + tim
+            
+            setTimeout(() => {
+                window.location.href = targetUrl; // Chuyển trang sau 0.8s
+            }, 1200); // Tăng thời gian chờ để hiệu ứng chạy hết
+        });
+
+    </script>
+</body>
+</html>

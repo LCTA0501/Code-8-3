@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Heart Animation ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Pacifico&family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./style/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* --- NÚT BẬT/TẮT NHẠC (Style Main-3) --- */
+    .music-toggle {
+        position: fixed; top: 20px; right: 20px;
+        min-width: 50px; height: 50px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #ff4d6d;
+        border-radius: 30px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; cursor: pointer; z-index: 10001;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        border: 1px solid #ff4d6d;
+        padding: 0 20px; gap: 10px;
+        backdrop-filter: blur(4px);
+        font-family: 'Poppins', sans-serif;
+    }
+    .music-toggle:hover { transform: scale(1.05); background: #ff4d6d; color: white; box-shadow: 0 0 15px #ff4d6d; }
+
+    .music-name {
+        font-size: 1rem; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis;
+        display: inline-block; vertical-align: middle;
+    }
+    .music-name.marquee { text-overflow: clip; animation: marquee-scroll var(--marquee-duration, 8s) linear infinite alternate; }
+    @keyframes marquee-scroll { 100% { transform: translateX(var(--marquee-end-x, -50px)); } }
+
+    /* --- HIỆU ỨNG MƯA ẢNH --- */
+    #image-rain-container {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; z-index: 1; overflow: hidden;
+    }
+    .rain-img {
+        position: absolute; top: -150px;
+        width: 60px; height: auto;
+        opacity: 0.7; border-radius: 8px;
+        box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        animation: fallRain linear 1; /* Chạy 1 lần, JS sẽ xử lý lặp lại */
+        object-fit: cover;
+    }
+    @keyframes fallRain {
+        0% { transform: translateY(-150px) rotate(0deg); opacity: 0; }
+        10% { opacity: 0.8; }
+        90% { opacity: 0.8; }
+        100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="heartCanvas"></canvas>
+  <div class="name-container">
+    <div class="name">
+      Đây là món quà cuối cùng,<br>
+      mong rằng nó có thể cho em thấy sự chân thành<br>
+      và tỉ mỉ của anh khi làm ra món quà này.<br>
+      Dù chỉ là món quà tinh thần,<br>
+      nhưng để em biết rằng: Anh nói là làm được.
+    </div>
+  </div>
+
+  <div class="ui-container">
+    <div class="controls">
+      <button class="control-btn active" id="colorBtn">🌈 Color Mode</button>
+      <button class="control-btn" id="speedBtn">⚡ Speed</button>
+      <button class="control-btn" id="sizeBtn">📏 Size</button>
+      <button class="control-btn" id="pauseBtn">⏸️ Pause</button>
+      <button class="control-btn" id="resetBtn">🔄 Reset</button>
+      <button class="control-btn" id="musicBtn">🎵 Music</button>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop autoplay>
+    <source src="./style/music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Nút Bật/Tắt nhạc -->
+  <div id="music-toggle-btn" class="music-toggle">
+      <i class="fas fa-volume-high" id="music-icon"></i>
+      <span class="music-name" id="music-name">Yêu Nhiều Ghen Nhiều</span>
+  </div>
+
+  <div class="stats">
+    <div>Particles: <span id="particleCount">0</span></div>
+    <div>FPS: <span id="fps">60</span></div>
+    <div>Mode: <span id="currentMode">Rainbow</span></div>
+  </div>
+
+  <script src="./style/script.js">
+
+  </script>
+  <script>
+    // --- XỬ LÝ NHẠC NỀN & UI ---
+    const audio = document.getElementById('bgMusic');
+    const musicToggleBtn = document.getElementById('music-toggle-btn');
+    const musicNameEl = document.getElementById('music-name');
+    const musicIconEl = document.getElementById('music-icon');
+    const songTitle = "Yêu Nhiều Ghen Nhiều";
+
+    function updateMusicUI() {
+        musicNameEl.textContent = songTitle;
+        musicNameEl.classList.remove('marquee');
+        musicNameEl.style.removeProperty('--marquee-end-x');
+        musicNameEl.style.removeProperty('--marquee-duration');
+        setTimeout(() => {
+            if (musicNameEl.scrollWidth > musicNameEl.clientWidth) {
+                const overflowDistance = musicNameEl.clientWidth - musicNameEl.scrollWidth;
+                const duration = (musicNameEl.scrollWidth / 40); 
+                musicNameEl.style.setProperty('--marquee-end-x', `${overflowDistance}px`);
+                musicNameEl.style.setProperty('--marquee-duration', `${duration}s`);
+                musicNameEl.classList.add('marquee');
+            }
+        }, 10);
+        if (!audio.paused && !audio.muted && audio.volume > 0) {
+            musicIconEl.className = 'fas fa-volume-high';
+        } else {
+            musicIconEl.className = 'fas fa-volume-mute';
+        }
+    }
+
+    musicToggleBtn.addEventListener('click', () => {
+        if (audio.paused || audio.volume === 0) {
+            audio.volume = 1.0; audio.play();
+        } else {
+            audio.pause();
+        }
+        updateMusicUI();
+    });
+
+    let musicStarted = false;
+    function playMusicFadeIn() {
+        if (!musicStarted) {
+            audio.play().then(() => {
+                musicStarted = true;
+                updateMusicUI();
+                musicIconEl.className = 'fas fa-volume-high';
+            }).catch(e => {
+                console.log("Chờ tương tác");
+                musicIconEl.className = 'fas fa-volume-mute';
+            });
+        }
+    }
+    
+    ['click', 'mousemove', 'touchstart', 'scroll', 'keydown'].forEach(evt => {
+        document.addEventListener(evt, playMusicFadeIn, { once: true });
+    });
+    playMusicFadeIn();
+
+    // --- HIỆU ỨNG MƯA ẢNH (10 ảnh rơi chậm 2 bên) ---
+    const rainContainer = document.createElement('div');
+    rainContainer.id = 'image-rain-container';
+    document.body.appendChild(rainContainer);
+
+    // Danh sách ảnh (lấy từ main-1, thư mục image và ảnh online)
+    // LƯU Ý: Bạn cần tạo một thư mục tên "image" ngang hàng với "main-3"
+    // và đặt 10 ảnh của bạn vào đó với tên từ 1.jpg đến 10.jpg (hoặc đổi tên trong danh sách dưới đây)
+    const rainImages = [
+        '../main-1/Nguyen_thi_anh_tuyet.jpg',
+        'image/tuyet.jpg',
+        'image/tuyet_2.jpg',
+        'image/tuyet_3.jpg',
+        'image/tuyet_4.jpg',
+        'image/tuyet_5.jpg',
+        'image/tuyet_6.jpg',
+        'image/tuyet_7.jpg',
+        'image/tuyet_8.jpg',
+        'image/tuyet_9.jpg',
+        'image/tuyet_10.jpg'
+    ];
+
+    function createRainImage() {
+        const img = document.createElement('img');
+        img.src = rainImages[Math.floor(Math.random() * rainImages.length)];
+        img.className = 'rain-img';
+        
+        // Vị trí: Random từ 0-15% (trái) hoặc 85-100% (phải)
+        let leftPos;
+        if (Math.random() < 0.5) {
+            leftPos = Math.random() * 15; 
+        } else {
+            leftPos = 85 + Math.random() * 15;
+        }
+        img.style.left = leftPos + '%';
+        
+        const size = (40 + Math.random() * 40) * 2; // 80px - 160px (x2 kích thước)
+        img.style.width = size + 'px';
+        
+        const duration = 10 + Math.random() * 10; // 10s - 20s
+        img.style.animationDuration = duration + 's';
+        
+        rainContainer.appendChild(img);
+        
+        img.addEventListener('animationend', () => {
+            img.remove();
+        });
+    }
+
+    // Tạo mưa ảnh liên tục (thay vì tái sử dụng thẻ cũ gây lỗi đứng hình)
+    setInterval(createRainImage, 400);
+  </script>
+</body>
+
+
+</html>
